@@ -10,6 +10,7 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -31,8 +32,8 @@ public class BluetoothLeActivity extends AppCompatActivity {
     public void onStartScanClick(View view) {
         boolean isEnabled = BluetoothUtil.isEnabled(this);
         if (isEnabled) {
-//            BluetoothManager.getInstance(this).startScan(scanCallback);
-            BluetoothManager.getInstance(this).getBluetoothAdapter().startLeScan(leScanCallback);
+            BluetoothManager.getInstance(this).startScan(scanCallback);
+//            BluetoothManager.getInstance(this).getBluetoothAdapter().startLeScan(leScanCallback);
         } else {
             //开启蓝牙
             boolean enable = BluetoothUtil.enable(this);
@@ -45,8 +46,8 @@ public class BluetoothLeActivity extends AppCompatActivity {
     }
 
     public void onStopScanClick(View view) {
-//        BluetoothManager.getInstance(this).stopScan(scanCallback);
-        BluetoothManager.getInstance(this).getBluetoothAdapter().stopLeScan(leScanCallback);
+        BluetoothManager.getInstance(this).stopScan(scanCallback);
+//        BluetoothManager.getInstance(this).getBluetoothAdapter().stopLeScan(leScanCallback);
     }
 
     public void onSimulationAdvertiseClick(View view) {
@@ -69,6 +70,8 @@ public class BluetoothLeActivity extends AppCompatActivity {
     private BluetoothAdapter.LeScanCallback leScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+            Log.e(TAG, device.getAddress() + ":" + device.getName() + ":" + device.getUuids() + ":" + rssi + ":" + ByteUtil.bytesToHex(scanRecord));
+
 
         }
     };
@@ -77,6 +80,16 @@ public class BluetoothLeActivity extends AppCompatActivity {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
+            if (!TextUtils.isEmpty(result.getScanRecord().getDeviceName())) {
+                BluetoothDevice device = result.getDevice();
+                Log.e("ScanResult", "==============begin==============");
+                Log.e("device", device.getAddress() + ":" + device.getName() + ":" + device.getUuids() + ":" + result.getRssi() + ":" + ByteUtil.bytesToHex(result.getScanRecord().getBytes()));
+                Log.e("scanRecord", result.toString());
+                result.getScanRecord().getAdvertiseFlags();//0x01
+                result.getScanRecord().getManufacturerSpecificData();//0xFF
+                result.getScanRecord().getManufacturerSpecificData();//0x09
+                Log.e("ScanResult", "==============end==============");
+            }
         }
 
         @Override
