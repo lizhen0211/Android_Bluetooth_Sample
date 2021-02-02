@@ -152,6 +152,7 @@ public class ScanRecordParser {
     private static final int DATA_TYPE_SERVICE_SOLICITATION_UUIDS_128_BIT = 0x15;
     private static final int DATA_TYPE_MANUFACTURER_SPECIFIC_DATA = 0xFF;
 
+
     // Parse service UUIDs.
     private static int parseServiceUuid(byte[] scanRecord, int currentPos, int dataLength,
                                         int uuidLength, List<ParcelUuid> serviceUuids) {

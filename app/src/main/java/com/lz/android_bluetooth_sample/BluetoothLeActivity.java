@@ -72,7 +72,7 @@ public class BluetoothLeActivity extends AppCompatActivity {
                 //打印
                 printScanRecord(result, device);
                 //解析数据(只是把代码从scanrecord拿出来,方便调试)
-                //ScanRecordParser.parseFromBytes(result.getScanRecord().getBytes());
+                ScanRecordParser.parseFromBytes(result.getScanRecord().getBytes());
             }
         }
 
@@ -93,9 +93,9 @@ public class BluetoothLeActivity extends AppCompatActivity {
         Log.e("device", device.getAddress() + ":" + device.getName() + ":" + device.getUuids() + ":" + result.getRssi());
         String scanRecordString = getScanRecordString(result);
         Log.e("scanRecord", scanRecordString);
-        result.getScanRecord().getAdvertiseFlags();//0x01
-        result.getScanRecord().getManufacturerSpecificData();//0xFF
-        result.getScanRecord().getDeviceName();//0x09
+        Log.e("AdvertiseFlags", String.valueOf(result.getScanRecord().getAdvertiseFlags()));//0x01
+        Log.e("ManufacturerSpecific", result.getScanRecord().getManufacturerSpecificData().toString());//0xFF
+        Log.e("DeviceName", result.getScanRecord().getDeviceName());//0x09
         Log.e("ScanResult", "==============end==============");
     }
 
