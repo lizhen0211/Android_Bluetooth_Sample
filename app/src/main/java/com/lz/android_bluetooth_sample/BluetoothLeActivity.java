@@ -13,7 +13,10 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BluetoothLeActivity extends AppCompatActivity {
@@ -22,10 +25,23 @@ public class BluetoothLeActivity extends AppCompatActivity {
 
     public static final int REQUEST_ENABLE_BT = 1;
 
+    private RecyclerView recyclerView;
+
+    private BluetoothRecyclerViewAdapter adapter;
+
+    private List<BluetoothDevice> bluetoothDevices = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_le);
+        recyclerView = findViewById(R.id.bluetooth_recyclerview);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+//        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        adapter = new BluetoothRecyclerViewAdapter(bluetoothDevices);
+        recyclerView.setAdapter(adapter);
     }
 
     public void onStartScanClick(View view) {
@@ -69,10 +85,17 @@ public class BluetoothLeActivity extends AppCompatActivity {
             super.onScanResult(callbackType, result);
             if (!TextUtils.isEmpty(result.getScanRecord().getDeviceName())) {
                 BluetoothDevice device = result.getDevice();
-                //打印
-                printScanRecord(result, device);
-                //解析数据(只是把代码从scanrecord拿出来,方便调试)
-                ScanRecordParser.parseFromBytes(result.getScanRecord().getBytes());
+                Log.e("+++", result.getScanRecord().getDeviceName() + ":::" + device.getName());
+                if (!adapter.containsDevice(device)) {
+                    adapter.addBluetoothDevice(device);
+                    adapter.notifyDataSetChanged();
+                }
+
+
+//                //打印
+//                printScanRecord(result, device);
+//                //解析数据(只是把代码从scanrecord拿出来,方便调试)
+//                ScanRecordParser.parseFromBytes(result.getScanRecord().getBytes());
             }
         }
 
