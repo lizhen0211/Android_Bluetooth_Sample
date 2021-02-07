@@ -16,8 +16,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BluetoothLeActivity extends AppCompatActivity {
 
@@ -29,7 +30,7 @@ public class BluetoothLeActivity extends AppCompatActivity {
 
     private BluetoothRecyclerViewAdapter adapter;
 
-    private List<BluetoothDevice> bluetoothDevices = new ArrayList<>();
+    private Map<String, Device> bluetoothDeviceMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,7 @@ public class BluetoothLeActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
 //        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
-        adapter = new BluetoothRecyclerViewAdapter(bluetoothDevices);
+        adapter = new BluetoothRecyclerViewAdapter(DeviceUtil.convertMapToList(bluetoothDeviceMap));
         recyclerView.setAdapter(adapter);
     }
 
@@ -86,11 +87,18 @@ public class BluetoothLeActivity extends AppCompatActivity {
             if (!TextUtils.isEmpty(result.getScanRecord().getDeviceName())) {
                 BluetoothDevice device = result.getDevice();
                 Log.e("+++", result.getScanRecord().getDeviceName() + ":::" + device.getName());
-                if (!adapter.containsDevice(device)) {
-                    adapter.addBluetoothDevice(device);
-                    adapter.notifyDataSetChanged();
-                }
+                Device device1 = DeviceUtil.convertDevice(device, result.getScanRecord().getDeviceName(), result.getRssi());
 
+                bluetoothDeviceMap.put(device.getAddress(), device1);
+                //数据转换为list
+                List<Device> list = DeviceUtil.convertMapToList(bluetoothDeviceMap);
+                //按照rssi排序
+                DeviceUtil.sortByRssi(list);
+                //标记在线
+                DeviceUtil.markOnline(list);
+
+                adapter.setBluetoothDevices(list);
+                adapter.notifyDataSetChanged();
 
 //                //打印
 //                printScanRecord(result, device);

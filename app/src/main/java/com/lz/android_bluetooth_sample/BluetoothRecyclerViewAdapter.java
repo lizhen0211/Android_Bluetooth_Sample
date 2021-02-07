@@ -1,7 +1,6 @@
 package com.lz.android_bluetooth_sample;
 
 import android.bluetooth.BluetoothDevice;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +17,9 @@ import java.util.List;
  */
 public class BluetoothRecyclerViewAdapter extends RecyclerView.Adapter<BluetoothRecyclerViewAdapter.ViewHolder> {
 
-    private List<BluetoothDevice> bluetoothDevices;
+    private List<Device> bluetoothDevices;
 
-    public BluetoothRecyclerViewAdapter(List<BluetoothDevice> bluetoothDevices) {
+    public BluetoothRecyclerViewAdapter(List<Device> bluetoothDevices) {
         this.bluetoothDevices = bluetoothDevices;
     }
 
@@ -34,9 +33,15 @@ public class BluetoothRecyclerViewAdapter extends RecyclerView.Adapter<Bluetooth
 
     @Override
     public void onBindViewHolder(@NonNull BluetoothRecyclerViewAdapter.ViewHolder holder, int position) {
-        Log.e("+++---",bluetoothDevices.get(position).getName());
-        holder.deviceNameTextView.setText(bluetoothDevices.get(position).getName());
-        holder.bluetoothAddressTextView.setText(bluetoothDevices.get(position).getAddress());
+        Device bluetoothDevice = bluetoothDevices.get(position);
+        holder.deviceNameTextView.setText(bluetoothDevice.getName());
+        holder.bluetoothAddressTextView.setText(bluetoothDevice.getAddress());
+        holder.rssiTextView.setText(String.valueOf(bluetoothDevice.getRssi()));
+        if (bluetoothDevice.isOnline()) {
+            holder.rssiTextView.setTextColor(holder.itemView.getResources().getColor(android.R.color.black));
+        } else {
+            holder.rssiTextView.setTextColor(holder.itemView.getResources().getColor(android.R.color.darker_gray));
+        }
     }
 
     @Override
@@ -44,21 +49,17 @@ public class BluetoothRecyclerViewAdapter extends RecyclerView.Adapter<Bluetooth
         return this.bluetoothDevices.size();
     }
 
-    public List<BluetoothDevice> getBluetoothDevices() {
-        return bluetoothDevices;
-    }
-
-    public void setBluetoothDevices(List<BluetoothDevice> bluetoothDevices) {
+    public void setBluetoothDevices(List<Device> bluetoothDevices) {
         this.bluetoothDevices = bluetoothDevices;
     }
 
-    public void addBluetoothDevice(BluetoothDevice bluetoothDevice) {
+    public void addBluetoothDevice(Device bluetoothDevice) {
         this.bluetoothDevices.add(bluetoothDevice);
     }
 
     public boolean containsDevice(BluetoothDevice bluetoothDevice) {
         boolean containsDevice = false;
-        for (BluetoothDevice device : bluetoothDevices) {
+        for (Device device : bluetoothDevices) {
             if (device.getAddress().equals(bluetoothDevice.getAddress())) {
                 containsDevice = true;
                 break;
@@ -73,10 +74,13 @@ public class BluetoothRecyclerViewAdapter extends RecyclerView.Adapter<Bluetooth
 
         public TextView bluetoothAddressTextView;
 
+        public TextView rssiTextView;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             deviceNameTextView = itemView.findViewById(R.id.device_name);
             bluetoothAddressTextView = itemView.findViewById(R.id.bluetooth_address);
+            rssiTextView = itemView.findViewById(R.id.rssi_textview);
         }
     }
 }
