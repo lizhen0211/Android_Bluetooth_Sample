@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -19,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class BluetoothLeActivity extends AppCompatActivity {
 
@@ -32,10 +35,22 @@ public class BluetoothLeActivity extends AppCompatActivity {
 
     private Map<String, Device> bluetoothDeviceMap = new HashMap<>();
 
+    private Timer timer;
+    private int count;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_le);
+        initUIComponent();
+        timer = new Timer();
+
+    }
+
+    private Button startBtn;
+
+    private void initUIComponent() {
+        startBtn = findViewById(R.id.start_scan);
         recyclerView = findViewById(R.id.bluetooth_recyclerview);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -48,6 +63,18 @@ public class BluetoothLeActivity extends AppCompatActivity {
     public void onStartScanClick(View view) {
         boolean isEnabled = BluetoothUtil.isEnabled(this);
         if (isEnabled) {
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    count++;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startBtn.setText(count+"");
+                        }
+                    });
+                }
+            }, 0, 1000);
             BluetoothManager.getInstance(this).startScan(scanCallback);
         } else {
             //开启蓝牙
@@ -84,7 +111,8 @@ public class BluetoothLeActivity extends AppCompatActivity {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            if (!TextUtils.isEmpty(result.getScanRecord().getDeviceName())) {
+            if (!TextUtils.isEmpty(result.getScanRecord().getDeviceName()) &&
+                    (result.getScanRecord().getDeviceName().startsWith("mobike") || result.getScanRecord().getDeviceName().startsWith("QB") || result.getScanRecord().getDeviceName().startsWith("HB"))) {
                 BluetoothDevice device = result.getDevice();
                 Log.e("+++", result.getScanRecord().getDeviceName() + ":::" + device.getName());
                 Device device1 = DeviceUtil.convertDevice(device, result.getScanRecord().getDeviceName(), result.getRssi());
